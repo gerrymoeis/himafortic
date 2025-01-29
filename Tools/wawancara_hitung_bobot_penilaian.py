@@ -1,74 +1,75 @@
-# Fungsi untuk menghitung skor tertimbang
-def hitung_skor_tertimbang(skor, bobot):
-    return skor * bobot
+def hitung_nilai_aspek(skor_indikator, jumlah_indikator, bobot_aspek):
+    skor_maksimal = 5 * jumlah_indikator
+    total_skor = sum(skor_indikator)
+    nilai_aspek = (total_skor / skor_maksimal) * bobot_aspek
+    return nilai_aspek
 
-# Fungsi utama untuk menghitung total skor
-def hitung_total_skor(data_skor, jenis="penilaian_umum"):
-    # Bobot penilaian (dalam desimal)
-    # Sub-bobot untuk setiap bagian
-    bobot = {}
-    sub_bobot = {}
-    if jenis == "penilaian_umum":
-        bobot = {
-            "kesatu": 0.20,  # 20%
-            "kedua": 0.35,  # 35%
-            "ketiga": 0.25,  # 25%
-            "keempat": 0.20  # 5%
-        }
-        
-        sub_bobot = {
-            "kesatu": bobot["kesatu"] / 3,  # 35% / 3 kriteria
-            "kedua": bobot["kedua"] / 3,  # 35% / 3 kriteria
-            "ketiga": bobot["ketiga"] / 4,  # 25% / 4 kriteria
-            "keempat": bobot["keempat"] / 6  # 5% / 6 kriteria
-        }
-    elif jenis == "departemen":
-        bobot = {
-            "kesatu": 0.20,  # 20%
-            "kedua": 0.20,  # 20%
-            "ketiga": 0.25,  # 25%
-            "keempat": 0.35  # 35%
-        }
-        
-        sub_bobot = {
-            "kesatu": bobot["kesatu"] / 2,  # 35% / 2 kriteria
-            "kedua": bobot["kedua"] / 2,  # 35% / 2 kriteria
-            "ketiga": bobot["ketiga"] / 2,  # 25% / 2 kriteria
-            "keempat": bobot["keempat"] / 2  # 5% / 2 kriteria
-        }
+def kelayakan_himafortic(skor):
+    # Konfigurasi aspek penilaian HIMAFORTIC
+    aspek = {
+        'Identitas Diri': {'indikator': 3, 'bobot': 20},
+        'Pengalaman Organisasi': {'indikator': 3, 'bobot': 35},
+        'Pemecahan Masalah': {'indikator': 4, 'bobot': 25},
+        'Motivasi dan Etika': {'indikator': 6, 'bobot': 20}
+    }
+    
+    total = 0
+    for nama_aspek, data in aspek.items():
+        nilai = hitung_nilai_aspek(
+            skor_indikator = skor[nama_aspek],
+            jumlah_indikator = data['indikator'],
+            bobot_aspek = data['bobot']
+        )
+        total += nilai
+    return total
 
-    # Hitung skor tertimbang untuk setiap bagian
-    skor_kesatu = sum(hitung_skor_tertimbang(skor, sub_bobot["kesatu"]) for skor in data_skor["kesatu"])
-    skor_kedua = sum(hitung_skor_tertimbang(skor, sub_bobot["kedua"]) for skor in data_skor["kedua"])
-    skor_ketiga = sum(hitung_skor_tertimbang(skor, sub_bobot["ketiga"]) for skor in data_skor["ketiga"])
-    skor_keempat = sum(hitung_skor_tertimbang(skor, sub_bobot["keempat"]) for skor in data_skor["keempat"])
+def kelayakan_departemen(skor):
+    # Konfigurasi aspek penilaian DEPARTEMEN
+    aspek = {
+        'Kesesuaian Diri': {'indikator': 2, 'bobot': 20},
+        'Pengetahuan Departemen': {'indikator': 2, 'bobot': 20},
+        'Inovasi/Ide': {'indikator': 2, 'bobot': 25},
+        'Tantangan dan Solusi': {'indikator': 2, 'bobot': 35}
+    }
+    
+    total = 0
+    for nama_aspek, data in aspek.items():
+        nilai = hitung_nilai_aspek(
+            skor_indikator = skor[nama_aspek],
+            jumlah_indikator = data['indikator'],
+            bobot_aspek = data['bobot']
+        )
+        total += nilai
+    return total
 
-    # Hitung total skor
-    total_skor = skor_kesatu + skor_kedua + skor_ketiga + skor_keempat
-    return total_skor
+def rekomendasi(nilai):
+    if 85 <= nilai <= 100:
+        return "Sangat Direkomendasikan"
+    elif 70 <= nilai < 85:
+        return "Direkomendasikan"
+    elif 50 <= nilai < 70:
+        return "Dipertimbangkan"
+    else:
+        return "Tidak Direkomendasikan"
 
-# Contoh input data skor (dummy data)
-penilaian_umum = {
-    "kesatu": [4, 5, 3],  # Skor untuk bagian Identitas Diri
-    "kedua": [4, 3, 5],  # Skor untuk bagian Pengalaman Organisasi
-    "ketiga": [5, 4, 3, 4],  # Skor untuk bagian Pemecahan Masalah
-    "keempat": [4, 5, 3, 4, 4, 3]  # Skor untuk bagian Motivasi dan Etika
+# Contoh Input Sesuai Kasus Anda
+skor_himafortic = {
+    'Identitas Diri': [4, 5, 4],
+    'Pengalaman Organisasi': [5, 4, 4],
+    'Pemecahan Masalah': [4, 4, 5, 5],
+    'Motivasi dan Etika': [5, 5, 4, 4, 5, 4]
 }
 
-departemen_1 = {
-    "kesatu": [3, 4],  # Skor untuk bagian Kesesuaian Minat
-    "kedua": [5, 4],  # Skor untuk bagian Pengetahuan
-    "ketiga": [4, 5],  # Skor untuk bagian Inovasi dan Ide
-    "keempat": [2, 3]  # Skor untuk bagian Tantangan dan Solusi
+skor_departemen = {
+    'Kesesuaian Diri': [4, 5],
+    'Pengetahuan Departemen': [5, 4],
+    'Inovasi/Ide': [4, 4],
+    'Tantangan dan Solusi': [5, 5]
 }
 
-departemen_2 = {
-    "kesatu": [4, 5],  # Skor untuk bagian Kesesuaian Minat
-    "kedua": [2, 5],  # Skor untuk bagian Pengetahuan
-    "ketiga": [2, 4],  # Skor untuk bagian Inovasi dan Ide
-    "keempat": [5, 5]  # Skor untuk bagian Tantangan dan Solusi
-}
+# Hitung Nilai
+nilai_himafortic = kelayakan_himafortic(skor_himafortic)
+nilai_departemen = kelayakan_departemen(skor_departemen)
 
-# Hitung total skor
-total_skor = (hitung_total_skor(penilaian_umum) + hitung_total_skor(departemen_1, "departemen") + hitung_total_skor(departemen_2, "departemen")) / 3
-print(f"Total Skor Tertimbang: {total_skor:.2f}")
+print(f"Hasil Penilaian HIMAFORTIC: {nilai_himafortic:.2f} ({rekomendasi(nilai_himafortic)})")
+print(f"Hasil Penilaian DEPARTEMEN: {nilai_departemen:.2f} ({rekomendasi(nilai_departemen)})")
